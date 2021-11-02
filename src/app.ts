@@ -14,6 +14,18 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
 	console.log(`connected ${socket.id}`);
 
+	let roomId: string = "";
+
+	socket.on("room:join", (id: string) => {
+		roomId = id;
+		socket.join(id);
+		console.log("room joined");
+	})
+
+	socket.on("msg:post", (msg: {type: string, sdp?: RTCSessionDescription, candidate?: RTCIceCandidate }) => {
+		socket.to(roomId).emit("msg:get", msg);
+	})
+
 	socket.on("disconnect", () => {
 		console.log(`disconnected ${socket.id}`);
 	});
