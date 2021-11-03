@@ -1,6 +1,16 @@
 import http from "http";
 import { Server } from "socket.io";
 
+type Message =
+	| {
+			type: string;
+			sdp: RTCSessionDescriptionInit;
+	  }
+	| {
+			type: string;
+			candidate: RTCIceCandidateInit;
+	  };
+
 const port = process.env.PORT || 3000;
 const server = http.createServer();
 
@@ -19,12 +29,12 @@ io.on("connection", (socket) => {
 	socket.on("room:join", (id: string) => {
 		roomId = id;
 		socket.join(id);
-		console.log("room joined");
-	})
+		console.log(`room joined ${socket.id}`);
+	});
 
-	socket.on("msg:post", (msg: {type: string, sdp?: RTCSessionDescription, candidate?: RTCIceCandidate }) => {
-		socket.to(roomId).emit("msg:get", msg);
-	})
+	socket.on("msg:post", (msg: Message) => {
+		socket.to(roomId).volatile.emit("msg:get", msg);
+	});
 
 	socket.on("disconnect", () => {
 		console.log(`disconnected ${socket.id}`);
