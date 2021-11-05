@@ -3,12 +3,17 @@ import { Server } from "socket.io";
 
 type Message =
 	| {
-			type: string;
+			type: "video-offer" | "video-answer";
 			sdp: RTCSessionDescriptionInit;
 	  }
 	| {
-			type: string;
+			type: "new-ice-candidate";
 			candidate: RTCIceCandidateInit;
+	  }
+	| {
+			type: "stream-info";
+			id: string;
+			content: "screen" | "audio";
 	  };
 
 const port = process.env.PORT || 3000;
